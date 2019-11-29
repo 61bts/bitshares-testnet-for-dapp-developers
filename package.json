@@ -3,12 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "vue-serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "serve": "node ./bin/www",
+    "dev-serve": "DEBUG=btfdd:* node ./bin/www"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.4",
     "core-js": "^3.4.3",
+    "debug": "^4.1.1",
+    "express": "^4.17.1",
+    "http-errors": "^1.7.3",
+    "morgan": "^1.9.1",
     "vue": "^2.6.10"
   },
   "devDependencies": {
