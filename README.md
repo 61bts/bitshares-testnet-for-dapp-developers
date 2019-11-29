@@ -1,24 +1,31 @@
-# btfdd
+# Bitshares Testnet For Dapp Developers
 
 ## Project setup
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Frontend Compiles and hot-reloads for development
 ```
-npm run serve
+npm run vue-serve
 ```
 
-### Compiles and minifies for production
+### Frontend Compiles and minifies for production
 ```
 npm run build
 ```
 
-### Lints and fixes files
+### Frontend Lints and fixes files
 ```
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Backend Server Debug
+```
+npm run dev-serve
+```
+
+### Backend Server Run
+```
+npm run serve
+```
