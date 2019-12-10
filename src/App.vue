@@ -3,11 +3,13 @@
     <div class="md-layout">
       <div class="md-layout-item">
         <h1>Bitshares Testnet For Dapp Developers</h1>
-        <md-tabs class="md-primary" md-alignment="centered">
+        <md-tabs md-sync-route class="md-primary" md-alignment="fixed">
           <md-tab id="intro" :md-label="$t('intro')">
             <Intro></Intro>
           </md-tab>
-          <md-tab id="accounts" md-label="创建账号"></md-tab>
+          <md-tab id="account-creator" :md-label="$t('account_creator')">
+            <Accounts></Accounts>
+          </md-tab>
         </md-tabs>
       </div>
     </div>
@@ -21,11 +23,13 @@
 
 <script>
 import Intro from './components/Intro';
+import Accounts from './components/Accounts';
 
 export default {
   name: 'app',
   components: {
     Intro,
+    Accounts,
   },
 }
 </script>
