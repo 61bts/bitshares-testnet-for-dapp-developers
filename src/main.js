@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import VueMaterial from 'vue-material';
+import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import router from './router';
 import App from './App.vue';
 import en from './i18n/en';

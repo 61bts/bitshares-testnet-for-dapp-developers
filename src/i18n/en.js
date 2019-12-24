@@ -10,4 +10,6 @@ export default {
   password: 'Password',
   create: 'Create',
   reset: 'Reset',
+  username_can_use: 'Username is available.',
+  username_has_used: 'Username has been registered!',
 };

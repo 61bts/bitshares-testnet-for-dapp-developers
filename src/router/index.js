@@ -14,7 +14,7 @@ const route = new VueRouter({
       component: Home,
     },
     {
-      path: '/account',
+      path: '/accounts',
       name: 'AccountCreator',
       component: AccountCreator,
     },

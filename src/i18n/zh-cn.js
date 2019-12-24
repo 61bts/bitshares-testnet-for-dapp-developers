@@ -10,4 +10,6 @@ export default {
   password: '密码',
   create: '创建',
   reset: '重置',
+  username_can_use: '用户名可用',
+  username_has_used: '用户名已存在',
 };

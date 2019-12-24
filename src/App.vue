@@ -3,7 +3,20 @@
     <div class="md-layout">
       <div class="md-layout-item">
         <h1>Bitshares Testnet For Dapp Developers</h1>
-        <md-tabs md-sync-route class="md-primary" md-alignment="fixed">
+
+        <div class="md-layout md-alignment-center-center">
+          <div class="md-layout-item md-size-10">
+            <md-field>
+              <label for="movie">Language</label>
+              <md-select v-model="$i18n.locale" name="lang" id="lang">
+                <md-option value="zh">zh</md-option>
+                <md-option value="en">en</md-option>
+              </md-select>
+            </md-field>
+          </div>
+        </div>
+
+        <md-tabs class="md-primary" md-alignment="fixed">
           <md-tab id="intro" :md-label="$t('intro')">
             <Intro></Intro>
           </md-tab>
@@ -22,11 +35,15 @@
 </template>
 
 <script>
-import Intro from './components/Intro';
-import Accounts from './components/Accounts';
+import Intro from '@/components/Intro';
+import Accounts from '@/components/Accounts';
 
 export default {
   name: 'app',
+  data() {
+    return {
+    };
+  },
   components: {
     Intro,
     Accounts,
