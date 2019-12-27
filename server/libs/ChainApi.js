@@ -1,5 +1,5 @@
-const btsJs = require('bitsharesjs'); 
-const btsWs = require('bitsharesjs-ws'); 
+const btsJs = require('bitsharesjs');
+const btsWs = require('bitsharesjs-ws');
 
 let chainApi = null;
 
@@ -10,11 +10,12 @@ class ChainApi {
       throw new Error('not_set_priv_key');
     }
     this.privKey = process.env.PRIV_KEY;
+    this.pKey = btsJs.PrivateKey.fromWif(this.privKey);
     this.apiUrl = api;
     btsWs.ChainConfig.networks['LiuyeTest'] = {
       core_asset: 'TEST',
       address_prefix: 'TEST',
-      chain_id: 'd5dfe0da7cda9426dc4761752d889d44401c5f04f76c17970e90437b02c038d4',
+      chain_id: '2d20869f3d925cdeb57da14dec65bbc18261f38db0ac2197327fc3414585b0c5',
     };
     btsWs.Apis.instance(this.apiUrl, true).init_promise.then((res) => {
       console.log("connected to:", res[0].network_name, "network");
@@ -39,7 +40,6 @@ class ChainApi {
   }
 
   registerUser(username, password, registrar, referrer) {
-    const pKey = btsJs.PrivateKey.fromWif(this.privKey);
     const referrerPercent = 0;
     const {pubKey: ownerPubkey} = this.generateKeyFromPassword(
       username,
@@ -100,7 +100,7 @@ class ChainApi {
           }
         });
         return tr.set_required_fees().then(() => {
-          tr.add_signer(pKey);
+          tr.add_signer(this.pKey);
           console.log("serialized transaction:", tr.serialize());
           tr.broadcast();
           return true;
@@ -111,7 +111,69 @@ class ChainApi {
     } catch(e) {
       console.log('unexpected_error:', e);
     }
-  } 
+  }
+
+  transfer(fromAccount, toAccount, amount = '0', memo = null, asset = 'TEST', feeAsset = 'TEST') {
+    const sendAmount = {
+      amount,
+      asset,
+    };
+
+    return Promise.all([
+      btsJs.FetchChain("getAccount", fromAccount),
+      btsJs.FetchChain("getAccount", toAccount),
+      btsJs.FetchChain("getAsset", sendAmount.asset),
+      btsJs.FetchChain("getAsset", feeAsset)
+    ]).then((res)=> {
+      const [fromAccount, toAccount, sendAsset, feeAsset] = res;
+
+      let memo_object = undefined;
+      if (memo) {
+        const memoFromKey = fromAccount.getIn(["options","memo_key"]);
+        const memoToKey = toAccount.getIn(["options","memo_key"]);
+        const nonce = btsJs.TransactionHelper.unique_nonce_uint64();
+
+        memo_object = {
+          from: memoFromKey,
+          to: memoToKey,
+          nonce,
+          message: btsJs.Aes.encrypt_with_checksum(
+            this.pKey,
+            memoToKey,
+            nonce,
+            memo
+          )
+        }
+      }
+
+      const tr = new btsJs.TransactionBuilder()
+      const precision = sendAsset.get('precision');
+
+      tr.add_type_operation('transfer', {
+        fee: {
+          amount: 0,
+          asset_id: feeAsset.get("id")
+        },
+        from: fromAccount.get("id"),
+        to: toAccount.get("id"),
+        amount: {
+          amount: sendAmount.amount * 10 ** precision,
+          asset_id: sendAsset.get("id")
+        },
+        memo: memo_object
+      });
+
+      return tr.set_required_fees().then(() => {
+        tr.add_signer(this.pKey);
+        console.log("serialized transaction:", tr.serialize());
+        tr.broadcast();
+        return true;
+      });
+    }).catch((err) => {
+      console.log(err);
+      return err.message;
+    });
+  }
 }
 
 chainApi = new ChainApi();

@@ -19,6 +19,7 @@
     "http-errors": "^1.7.3",
     "material-design-icons-iconfont": "^5.0.1",
     "morgan": "^1.9.1",
+    "secure-random": "^1.1.2",
     "vue": "^2.6.10",
     "vue-i18n": "^8.15.1",
     "vue-material": "^1.0.0-beta-11",

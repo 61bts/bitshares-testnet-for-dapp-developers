@@ -1,4 +1,11 @@
-import {PrivateKey, key, FetchChain, TransactionBuilder} from 'bitsharesjs';
+import {
+  PrivateKey,
+  key,
+  FetchChain,
+  TransactionBuilder,
+  TransactionHelper,
+  Aes,
+} from 'bitsharesjs';
 import {Apis, ChainConfig} from 'bitsharesjs-ws';
 
 let chainApi = null;
@@ -10,7 +17,7 @@ class ChainApi {
     ChainConfig.networks['LiuyeTest'] = {
       core_asset: 'TEST',
       address_prefix: 'TEST',
-      chain_id: 'd5dfe0da7cda9426dc4761752d889d44401c5f04f76c17970e90437b02c038d4',
+      chain_id: '2d20869f3d925cdeb57da14dec65bbc18261f38db0ac2197327fc3414585b0c5',
     };
     Apis.instance(this.apiUrl, true).init_promise.then((res) => {
       console.log("connected to:", res[0].network_name, "network");
@@ -19,10 +26,11 @@ class ChainApi {
 
   setPrivKey(privKey) {
     this.privKey = privKey;
+    this.pKey = PrivateKey.fromWif(privKey);
   }
 
   checkUsername(username) {
-    return FetchChain("getAccount", username);
+    return FetchChain('getAccount', username);
   }
 
   generatePassword() {
@@ -38,8 +46,11 @@ class ChainApi {
     return {privKey, pubKey};
   }
 
+  getAsset(assetName) {
+    return FetchChain('getAsset', assetName);
+  }
+
   registerUser(username, password, registrar, referrer) {
-    const pKey = PrivateKey.fromWif(this.privKey);
     const referrerPercent = 10000;
     const {pubKey: ownerPubkey} = this.generateKeyFromPassword(
       username,
@@ -56,11 +67,10 @@ class ChainApi {
       'memo',
       password
     );
-    console.log(username, password, ownerPubkey, activePubkey, memoPubkey);
 
     Promise.all([
-      FetchChain("getAccount", registrar),
-      FetchChain("getAccount", referrer)
+      FetchChain('getAccount', registrar),
+      FetchChain('getAccount', referrer)
     ]).then((res) => {
       const [chainRegistrar, chainReferrer] = res;
       const tr = new TransactionBuilder();
@@ -94,12 +104,74 @@ class ChainApi {
         }
       });
       tr.set_required_fees().then(() => {
-        tr.add_signer(pKey);
+        tr.add_signer(this.pKey);
         console.log("serialized transaction:", tr.serialize());
         tr.broadcast();
       });
     }).catch((err) => {
       console.log('err:', err);
+    });
+  }
+
+  transfer(fromAccount, toAccount, amount = '0', memo = null, asset = 'TEST', feeAsset = 'TEST') {
+    const sendAmount = {
+      amount,
+      asset,
+    };
+
+    return Promise.all([
+      FetchChain('getAccount', fromAccount),
+      FetchChain('getAccount', toAccount),
+      FetchChain('getAsset', sendAmount.asset),
+      FetchChain('getAsset', feeAsset)
+    ]).then((res)=> {
+      const [fromAccount, toAccount, sendAsset, feeAsset] = res;
+
+      let memo_object = undefined;
+      if (memo !== null) {
+        const memoFromKey = fromAccount.getIn(['options','memo_key']);
+        const memoToKey = toAccount.getIn(['options','memo_key']);
+        const nonce = TransactionHelper.unique_nonce_uint64();
+
+        memo_object = {
+          from: memoFromKey,
+          to: memoToKey,
+          nonce,
+          message: Aes.encrypt_with_checksum(
+            this.pKey,
+            memoToKey,
+            nonce,
+            memo
+          )
+        };
+      }
+
+      const tr = new TransactionBuilder();
+      const precision = sendAsset.get('precision');
+
+      tr.add_type_operation('transfer', {
+        fee: {
+          amount: 0,
+          asset_id: feeAsset.get('id')
+        },
+        from: fromAccount.get('id'),
+        to: toAccount.get('id'),
+        amount: {
+          amount: sendAmount.amount * 10 ** precision,
+          asset_id: sendAsset.get('id')
+        },
+        memo: memo_object,
+      });
+
+      return tr.set_required_fees().then(() => {
+        tr.add_signer(this.pKey);
+        console.log('serialized transaction:', tr.serialize());
+        tr.broadcast();
+        return true;
+      });
+    }).catch((err) => {
+      console.log(err);
+      throw new Error(err.message);
     });
   }
 }

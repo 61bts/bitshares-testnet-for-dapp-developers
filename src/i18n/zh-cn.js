@@ -12,4 +12,7 @@ export default {
   reset: '重置',
   username_can_use: '用户名可用',
   username_has_used: '用户名已存在',
+  transfer_bot: '转账机器人',
+  transfer_to: '转账 {amount} {asset} 给:',
+  transfer: '确认转账',
 };

@@ -23,6 +23,13 @@ class ServerApi {
       username, password
     });
   }
+
+  botTransfer(username) {
+    const url = this.getUrl('/api/v1/bot_transfer');
+    return axios.post(url, {
+      username
+    });
+  }
 }
 
 serverApi = new ServerApi();

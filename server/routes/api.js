@@ -8,13 +8,6 @@ router.get('/', function(req, res) {
   res.send('test api');
 });
 
-router.get('/create_user', function(req, res) {
-  res.send('');
-});
-router.get('/bot_transfer', function(req, res) {
-  res.send('');
-});
-
 router.post('/create_user', function(req, res) {
   const data = req.body;
   if (!data.username || !data.password) {
@@ -48,8 +41,34 @@ router.post('/create_user', function(req, res) {
 });
 
 router.post('/bot_transfer', function(req, res) {
-  console.log(req.body);
-  res.send('bot_transfer');
+  const data = req.body;
+  if (!data.username) {
+    return res.send(JSON.stringify({
+      status: false,
+      msg: 'username is empty.',
+    }));
+  }
+  ChainApi.checkUsername(data.username).then((account) => {
+    if (account === null) {
+      return res.send(JSON.stringify({
+        status: false,
+        msg: 'Username has not registered!',
+      }));
+    }
+    ChainApi.transfer('ety001', data.username, '1000')
+      .then((result) => {
+        if (result === true) {
+          return res.send(JSON.stringify({
+            status: true,
+            msg: 'Success!',
+          }));
+        }
+        return res.send(JSON.stringify({
+          status: false,
+          msg: result,
+        }));
+      });
+  });
 });
 
 module.exports = router;
