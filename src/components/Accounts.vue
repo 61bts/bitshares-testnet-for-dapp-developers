@@ -24,6 +24,7 @@
       <div class="md-layout-item md-size-100">
         <md-button
           class="md-dense md-raised md-primary"
+          @click="createUser"
         >{{ $t('create') }}</md-button>
         <md-button
           class="md-dense md-raised md-accent"
@@ -41,7 +42,8 @@
 </template>
 
 <script>
-import ChainApi from '@/libs/api.js';
+import ChainApi from '@/libs/ChainApi';
+import ServerApi from '@/libs/ServerApi';
 
 export default {
   name: 'Accounts',
@@ -78,7 +80,15 @@ export default {
       }
     },
     createUser() {
-
+      ServerApi.createUser(this.username, this.password).then((result) => {
+        if (result.data.status === true) {
+          this.successMsg = result.data.msg;
+          this.showSuccessMsg = true;
+        } else {
+          this.failedMsg = result.data.msg;
+          this.showFailedMsg = true;
+        }
+      });
     },
   },
   created() {
