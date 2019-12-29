@@ -8,6 +8,11 @@ router.get('/', function(req, res) {
   res.send('test api');
 });
 
+router.get('/global_config', function(req, res) {
+  const globalConfig = ChainApi.getGlobalConfig();
+  return res.send(JSON.stringify(globalConfig));
+});
+
 router.post('/create_user', function(req, res) {
   const data = req.body;
   if (!data.username || !data.password) {

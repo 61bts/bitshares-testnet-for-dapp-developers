@@ -4,22 +4,45 @@ const btsWs = require('bitsharesjs-ws');
 let chainApi = null;
 
 class ChainApi {
-  constructor(api = 'ws://127.0.0.1:18090/ws') {
+  constructor() {
     if (chainApi !== null) return;
     if (!process.env.PRIV_KEY) {
       throw new Error('not_set_priv_key');
     }
     this.privKey = process.env.PRIV_KEY;
     this.pKey = btsJs.PrivateKey.fromWif(this.privKey);
-    this.apiUrl = api;
+    const globalConfig = this.getGlobalConfig();
+    this.apiUrl = globalConfig.api_url;
     btsWs.ChainConfig.networks['LiuyeTest'] = {
-      core_asset: 'TEST',
-      address_prefix: 'TEST',
-      chain_id: '2d20869f3d925cdeb57da14dec65bbc18261f38db0ac2197327fc3414585b0c5',
+      core_asset: globalConfig.core_asset,
+      address_prefix: globalConfig.core_asset,
+      chain_id: globalConfig.chain_id,
     };
     btsWs.Apis.instance(this.apiUrl, true).init_promise.then((res) => {
       console.log("connected to:", res[0].network_name, "network");
+    }).catch(err => {
+      console.log('server error:', err.message);
     });
+  }
+
+  getGlobalConfig() {
+    let apiUrl = 'ws://127.0.0.1:18090/ws';
+    if (process.env.API_URL) {
+      apiUrl = process.env.API_URL;
+    }
+    let chainId = '2d20869f3d925cdeb57da14dec65bbc18261f38db0ac2197327fc3414585b0c5';
+    if (process.env.CHAIN_ID) {
+      chainId = process.env.CHAIN_ID;
+    }
+    let coreAsset = 'TEST';
+    if (process.env.CORE_ASSET) {
+      coreAsset = process.env.CORE_ASSET;
+    }
+    return {
+      api_url: apiUrl,
+      chain_id: chainId,
+      core_asset: coreAsset,
+    };
   }
 
   checkUsername(username) {
