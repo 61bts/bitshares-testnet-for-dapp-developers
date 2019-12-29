@@ -30,6 +30,11 @@ class ServerApi {
       username
     });
   }
+
+  getGlobalConfig() {
+    const url = this.getUrl('/api/v1/global_config');
+    return axios.get(url);
+  }
 }
 
 serverApi = new ServerApi();

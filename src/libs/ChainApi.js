@@ -7,20 +7,27 @@ import {
   Aes,
 } from 'bitsharesjs';
 import {Apis, ChainConfig} from 'bitsharesjs-ws';
+import ServerApi from '@/libs/ServerApi';
 
 let chainApi = null;
 
 class ChainApi {
-  constructor(api = 'ws://127.0.0.1:18090/ws') {
+  constructor() {
     if (chainApi !== null) return;
-    this.apiUrl = api;
-    ChainConfig.networks['LiuyeTest'] = {
-      core_asset: 'TEST',
-      address_prefix: 'TEST',
-      chain_id: '2d20869f3d925cdeb57da14dec65bbc18261f38db0ac2197327fc3414585b0c5',
-    };
-    Apis.instance(this.apiUrl, true).init_promise.then((res) => {
-      console.log("connected to:", res[0].network_name, "network");
+    this.state = false;
+    ServerApi.getGlobalConfig().then(res => {
+      if (res.status === 200) {
+        const data = res.data;
+        ChainConfig.networks['LiuyeTest'] = {
+          core_asset: data.core_asset,
+          address_prefix: data.core_asset,
+          chain_id: data.chain_id,
+        };
+        Apis.instance(data.api_url, true).init_promise.then((res) => {
+          this.state = true;
+          console.log("connected to:", res[0].network_name, "network");
+        });
+      }
     });
   }
 
