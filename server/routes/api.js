@@ -22,7 +22,6 @@ router.post('/create_user', function(req, res) {
     }));
   }
   ChainApi.checkUsername(data.username).then((account) => {
-    console.log(account);
     if (account !== null) {
       return res.send(JSON.stringify({
         status: false,

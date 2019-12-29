@@ -126,6 +126,7 @@ class ChainApi {
           tr.add_signer(this.pKey);
           console.log("serialized transaction:", tr.serialize());
           tr.broadcast();
+          btsJs.ChainStore.clearCache();
           return true;
         });
       }).catch((err) => {
@@ -190,6 +191,7 @@ class ChainApi {
         tr.add_signer(this.pKey);
         console.log("serialized transaction:", tr.serialize());
         tr.broadcast();
+        btsJs.ChainStore.clearCache();
         return true;
       });
     }).catch((err) => {
