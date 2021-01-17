@@ -15,4 +15,5 @@ export default {
   transfer_bot: 'Transfer Bot',
   transfer_to: 'Transfer {amount} {asset} TO:',
   transfer: 'Transfer',
+  chain_id: 'Chain ID',
 };
