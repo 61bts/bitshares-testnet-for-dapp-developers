@@ -15,4 +15,5 @@ export default {
   transfer_bot: '转账机器人',
   transfer_to: '转账 {amount} {asset} 给:',
   transfer: '确认转账',
+  chain_id: 'Chain ID',
 };
